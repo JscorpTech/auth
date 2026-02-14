@@ -11,12 +11,19 @@ import (
 	"github.com/JscorpTech/auth/internal/modules/auth"
 	authHttp "github.com/JscorpTech/auth/internal/modules/auth/delivery/http"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		panic(".env load error")
+	}
+
 	logger, _ := zap.NewDevelopment()
 	cfg := config.NewConfig()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -40,14 +47,14 @@ func main() {
 
 	srv := http.Server{
 		Handler: router,
-		Addr:    ":8080",
+		Addr:    cfg.Addr,
 	}
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
 	go func() {
-		logger.Info("Server ishga tushdi 🚀 :8080")
+		logger.Info("Server ishga tushdi 🚀 " + cfg.Addr)
 		if err := srv.ListenAndServe(); err != nil {
 			panic(err)
 		}

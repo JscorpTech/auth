@@ -10,6 +10,15 @@ type AuthLoginResponse struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Phone     string `json:"phone"`
+	Role      string `json:"role"`
+}
+
+type AuthRefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+type AuthRefreshTokenResponse struct {
+	AccessToken string `json:"access"`
 }
 
 type AuthRegisterRequest struct {
@@ -26,6 +35,7 @@ type AuthRegisterResponse struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Phone     string `json:"phone"`
+	Role      string `json:"role"`
 }
 
 func ToRegisterResponse(user *User) *AuthRegisterResponse {

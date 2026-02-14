@@ -5,6 +5,9 @@ import "os"
 type Config struct {
 	PrivateKey []byte
 	PublicKey  []byte
+	Addr       string
+	AccessExp  int64
+	RefreshExp int64
 }
 
 func NewConfig() *Config {
@@ -20,5 +23,8 @@ func NewConfig() *Config {
 	return &Config{
 		PrivateKey: privKey,
 		PublicKey:  pubKey,
+		Addr:       os.Getenv("ADDR"),
+		AccessExp:  60,
+		RefreshExp: 43200,
 	}
 }

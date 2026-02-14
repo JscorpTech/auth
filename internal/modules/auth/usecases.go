@@ -14,6 +14,7 @@ type AuthUsecase interface {
 	Login(context.Context, string, string) (*User, error)
 	Register(context.Context, *User) (*User, error)
 	IsExists(context.Context, string) bool
+	ValidateToken(string) (*jwt.MapClaims, error)
 	AccessToken(*User) string
 	RefreshToken(*User) string
 }
@@ -28,6 +29,14 @@ func NewAuthUsecase(repo AuthRepository, cfg *config.Config) AuthUsecase {
 		repo: repo,
 		cfg:  cfg,
 	}
+}
+
+func (a *AuthUsecaseImpl) ValidateToken(token string) (*jwt.MapClaims, error) {
+	claims, err := utils.VerifyJWT(token, a.cfg.PublicKey)
+	if err != nil {
+		return nil, err
+	}
+	return &claims, nil
 }
 
 func (a *AuthUsecaseImpl) Login(ctx context.Context, phone string, password string) (*User, error) {
@@ -59,8 +68,9 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, user *User) (*User, erro
 func (a *AuthUsecaseImpl) AccessToken(user *User) string {
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
-		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+		"exp":     time.Now().Add(time.Minute * time.Duration(a.cfg.AccessExp)).Unix(),
 		"type":    "access",
+		"role":    user.Role,
 	}
 	token, err := utils.CreateJWT(claims, a.cfg.PrivateKey)
 	if err != nil {
@@ -72,8 +82,9 @@ func (a *AuthUsecaseImpl) AccessToken(user *User) string {
 func (a *AuthUsecaseImpl) RefreshToken(user *User) string {
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
-		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+		"exp":     time.Now().Add(time.Minute * time.Duration(a.cfg.RefreshExp)).Unix(),
 		"type":    "refresh",
+		"role":    user.Role,
 	}
 	token, err := utils.CreateJWT(claims, a.cfg.PrivateKey)
 	if err != nil {

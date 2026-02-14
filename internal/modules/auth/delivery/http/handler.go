@@ -7,6 +7,7 @@ import (
 	"github.com/JscorpTech/auth/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type AuthHandler struct {
@@ -19,6 +20,35 @@ func NewAuthHandler(usecase auth.AuthUsecase, logger *zap.Logger) *AuthHandler {
 		usecase: usecase,
 		logger:  logger,
 	}
+}
+
+func (h *AuthHandler) RefreshToken(c *gin.Context) {
+	var payload auth.AuthRefreshTokenRequest
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"errors": utils.FormatValidationErrors(err, &payload),
+		})
+		return
+	}
+	claims, err := h.usecase.ValidateToken(payload.RefreshToken)
+	if err != nil || (*claims)["type"] != "refresh" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Invalid refresh token",
+		})
+		return
+	}
+
+	user := &auth.User{
+		Model: gorm.Model{
+			ID: uint((*claims)["user_id"].(float64)),
+		},
+		Role: (*claims)["role"].(string),
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access":  h.usecase.AccessToken(user),
+		"refresh": h.usecase.RefreshToken(user),
+	})
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {

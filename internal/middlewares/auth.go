@@ -14,15 +14,16 @@ func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 		tokenRaw := c.Request.Header.Get("Authorization")
 		token := strings.Replace(tokenRaw, "Bearer ", "", 1)
 		claims, err := utils.VerifyJWT(token, cfg.PublicKey)
-		if claims["exp"] == nil {
+
+		exp, ok := claims["exp"]
+		if !ok {
 			c.JSON(401, gin.H{
 				"error": "Invalid token",
 			})
 			c.Abort()
 			return
 		}
-		exp := claims["exp"].(float64)
-		if exp < float64(time.Now().Unix()) {
+		if exp.(float64) < float64(time.Now().Unix()) {
 			c.JSON(401, gin.H{
 				"error": "Token expired",
 			})
