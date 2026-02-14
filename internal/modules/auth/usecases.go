@@ -1,8 +1,12 @@
 package auth
 
+import (
+	"context"
+)
+
 type AuthUsecase interface {
-	Login() error
-	Register() (*User, error)
+	Login(context.Context) error
+	Register(context.Context, *User) (*User, error)
 }
 
 type AuthUsecaseImpl struct {
@@ -15,10 +19,14 @@ func NewAuthUsecase(repo AuthRepository) AuthUsecase {
 	}
 }
 
-func (a *AuthUsecaseImpl) Login() error {
+func (a *AuthUsecaseImpl) Login(cxt context.Context) error {
 	return nil
 }
 
-func (a *AuthUsecaseImpl) Register() (*User, error) {
-	return nil, nil
+func (a *AuthUsecaseImpl) Register(ctx context.Context, user *User) (*User, error) {
+	user, err := a.repo.Create(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

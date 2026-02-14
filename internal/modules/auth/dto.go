@@ -13,3 +13,21 @@ type AuthRegisterRequest struct {
 	Email     string `json:"email"`
 	Phone     string `json:"phone" binding:"required"`
 }
+
+type AuthRegisterResponse struct {
+	ID        uint   `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+}
+
+func ModelToResponse(user *User) *AuthRegisterResponse {
+	return &AuthRegisterResponse{
+		ID:        user.ID,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Phone:     user.Phone,
+	}
+}

@@ -11,19 +11,28 @@ import (
 	authHttp "github.com/JscorpTech/auth/internal/modules/auth/delivery/http"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func main() {
 	logger, _ := zap.NewDevelopment()
 	ctx, _ := context.WithCancel(context.Background())
+	db, err := gorm.Open(sqlite.Open("db.sqlite3"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect databse")
+	}
+
+	// migrations
+	db.AutoMigrate(&auth.User{})
 
 	router := gin.Default()
 	api := router.Group("/api")
 
 	// Auth routes
-	authRepository := auth.NewAuthRepository()
+	authRepository := auth.NewAuthRepository(db)
 	authUsecase := auth.NewAuthUsecase(authRepository)
-	authHandler := authHttp.NewAuthHandler(authUsecase)
+	authHandler := authHttp.NewAuthHandler(authUsecase, logger)
 	authHttp.RegisterAuthRoutes(api, authHandler)
 
 	srv := http.Server{
