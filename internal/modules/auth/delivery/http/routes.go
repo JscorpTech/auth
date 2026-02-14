@@ -1,11 +1,20 @@
 package http
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/JscorpTech/auth/internal/config"
+	"github.com/JscorpTech/auth/internal/middlewares"
+	"github.com/gin-gonic/gin"
+)
 
-func RegisterAuthRoutes(router *gin.RouterGroup, h *AuthHandler) {
-	users := router.Group("/auth")
+func RegisterAuthRoutes(cfg *config.Config, router *gin.RouterGroup, h *AuthHandler) {
+	public := router.Group("/auth")
 	{
-		users.POST("/login", h.Login)
-		users.POST("/register", h.Register)
+		public.POST("/login", h.Login)
+		public.POST("/register", h.Register)
+	}
+	private := router.Group("/auth")
+	private.Use(middlewares.AuthMiddleware(cfg))
+	{
+		private.GET("/me", h.Me)
 	}
 }

@@ -8,4 +8,9 @@ type User struct {
 	LastName  string `gorm:"last_name"`
 	Email     string `gorm:"email"`
 	Phone     string `gorm:"phone"`
+	Password  string `gorm:"password"`
+}
+
+func (*User) TableName() string {
+	return "users"
 }

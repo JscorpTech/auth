@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/JscorpTech/auth/internal/config"
 	"github.com/JscorpTech/auth/internal/modules/auth"
 	authHttp "github.com/JscorpTech/auth/internal/modules/auth/delivery/http"
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,7 @@ import (
 
 func main() {
 	logger, _ := zap.NewDevelopment()
+	cfg := config.NewConfig()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	db, err := gorm.Open(sqlite.Open("db.sqlite3"), &gorm.Config{})
@@ -32,9 +34,9 @@ func main() {
 
 	// Auth routes
 	authRepository := auth.NewAuthRepository(db)
-	authUsecase := auth.NewAuthUsecase(authRepository)
+	authUsecase := auth.NewAuthUsecase(authRepository, cfg)
 	authHandler := authHttp.NewAuthHandler(authUsecase, logger)
-	authHttp.RegisterAuthRoutes(api, authHandler)
+	authHttp.RegisterAuthRoutes(cfg, api, authHandler)
 
 	srv := http.Server{
 		Handler: router,
