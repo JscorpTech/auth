@@ -22,7 +22,7 @@ type AuthRegisterResponse struct {
 	Phone     string `json:"phone"`
 }
 
-func ModelToResponse(user *User) *AuthRegisterResponse {
+func ToRegisterResponse(user *User) *AuthRegisterResponse {
 	return &AuthRegisterResponse{
 		ID:        user.ID,
 		FirstName: user.FirstName,

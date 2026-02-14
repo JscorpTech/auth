@@ -49,6 +49,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "User registered successfully",
-		"user":    auth.ModelToResponse(user),
+		"user":    auth.ToRegisterResponse(user),
 	})
 }
