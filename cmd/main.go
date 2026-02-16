@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/JscorpTech/auth/docs"
 	"github.com/JscorpTech/auth/internal/config"
+	"github.com/JscorpTech/auth/internal/middlewares"
 	"github.com/JscorpTech/auth/internal/modules/auth"
 	authHttp "github.com/JscorpTech/auth/internal/modules/auth/delivery/http"
 	"github.com/gin-gonic/gin"
@@ -62,6 +63,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	api := router.Group("/api")
+	api.Use(middlewares.RateLimiterPerIP())
 
 	// Auth routes
 	authRepository := auth.NewAuthRepository(db)

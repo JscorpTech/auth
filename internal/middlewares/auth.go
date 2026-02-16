@@ -11,6 +11,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func RateLimiterPerIP() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := c.ClientIP()
+		limiter := utils.GetVisitor(ip)
+
+		if !limiter.Allow() {
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+				"status": false,
+				"error":  "Too many requests from your IP",
+			})
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenRaw := c.Request.Header.Get("Authorization")
