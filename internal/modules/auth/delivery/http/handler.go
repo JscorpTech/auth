@@ -24,6 +24,13 @@ func NewAuthHandler(usecase auth.AuthUsecase, logger *zap.Logger) *AuthHandler {
 	}
 }
 
+// @Router /api/auth/google [post]
+// @Accept json
+// @Produce json
+// @Tags auth
+// @Summary Google authentication
+// @Param request body auth.GoogleAuthRequest true "Google auth request"
+// @Success 200 {object} dto.BaseResponse{data=auth.AuthLoginResponse}
 func (h *AuthHandler) Google(c *gin.Context) {
 	var payload auth.GoogleAuthRequest
 	ctx := c.Request.Context()
@@ -37,18 +44,8 @@ func (h *AuthHandler) Google(c *gin.Context) {
 		return
 	}
 	dto.JSON(c, http.StatusOK, auth.AuthLoginResponse{
-		Token: auth.TokenDTO{
-			Access:  h.usecase.AccessToken(user),
-			Refresh: h.usecase.RefreshToken(user),
-		},
-		User: auth.UserDTO{
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Phone:     user.Phone,
-			Email:     user.Email,
-			Role:      user.Role,
-			ID:        user.ID,
-		},
+		Token: auth.ToToken(h.usecase.AccessToken(user), h.usecase.RefreshToken(user)),
+		User:  auth.ToUser(user),
 	}, "")
 }
 
@@ -75,12 +72,10 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		Model: gorm.Model{
 			ID: uint((*claims)["user_id"].(float64)),
 		},
-		Role: (*claims)["role"].(string),
+		Role: (*claims)["role"].(auth.Role),
 	}
 
-	dto.JSON(c, http.StatusOK, auth.TokenDTO{
-		Access: h.usecase.AccessToken(user),
-	}, "")
+	dto.JSON(c, http.StatusOK, auth.ToToken(h.usecase.AccessToken(user), ""), "")
 }
 
 // Register godoc
@@ -104,17 +99,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 	dto.JSON(c, http.StatusOK, auth.AuthLoginResponse{
-		Token: auth.TokenDTO{
-			Access:  h.usecase.AccessToken(user),
-			Refresh: h.usecase.RefreshToken(user),
-		},
-		User: auth.UserDTO{
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Phone:     user.Phone,
-			Role:      user.Role,
-			ID:        user.ID,
-		},
+		Token: auth.ToToken(h.usecase.AccessToken(user), h.usecase.RefreshToken(user)),
+		User:  auth.ToUser(user),
 	}, "")
 }
 
@@ -195,8 +181,5 @@ func (h *AuthHandler) Confirm(c *gin.Context) {
 		return
 	}
 	h.usecase.Confirm(ctx, user)
-	dto.JSON(c, 200, auth.TokenDTO{
-		Access:  h.usecase.AccessToken(user),
-		Refresh: h.usecase.RefreshToken(user),
-	}, "")
+	dto.JSON(c, 200, auth.ToToken(h.usecase.AccessToken(user), h.usecase.RefreshToken(user)), "")
 }

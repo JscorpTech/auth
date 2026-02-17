@@ -9,6 +9,8 @@ type Config struct {
 	AccessExp      int64
 	RefreshExp     int64
 	GoogleClientID string
+	DatabaseDsn    string
+	DatabaseType   string
 }
 
 func NewConfig() *Config {
@@ -28,5 +30,7 @@ func NewConfig() *Config {
 		AccessExp:      60,
 		RefreshExp:     43200,
 		GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"),
+		DatabaseType:   os.Getenv("DATABASE_TYPE"),
+		DatabaseDsn:    os.Getenv("DATABASE_DSN"),
 	}
 }

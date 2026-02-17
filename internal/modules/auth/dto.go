@@ -6,12 +6,15 @@ type AuthLoginRequest struct {
 }
 
 type UserDTO struct {
-	ID        uint    `json:"id"`
-	FirstName string  `json:"first_name"`
-	LastName  string  `json:"last_name"`
-	Phone     *string `json:"phone"`
-	Email     *string `json:"email"`
-	Role      string  `json:"role"`
+	ID              uint    `json:"id"`
+	FirstName       string  `json:"first_name"`
+	LastName        string  `json:"last_name"`
+	Phone           *string `json:"phone"`
+	Email           *string `json:"email"`
+	UserName        *string `json:"username"`
+	Balance         int     `json:"balance"`
+	TemplateBalance int     `json:"template_balance"`
+	Role            Role    `json:"role"`
 }
 
 type AuthLoginResponse struct {
@@ -56,6 +59,24 @@ type AuthConfirmRequest struct {
 
 type GoogleAuthRequest struct {
 	IDToken string `json:"id_token" binding:"required"`
+}
+
+func ToToken(access string, refresh string) TokenDTO {
+	return TokenDTO{
+		Access:  access,
+		Refresh: refresh,
+	}
+}
+
+func ToUser(user *User) UserDTO {
+	return UserDTO{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Phone:     user.Phone,
+		Email:     user.Email,
+		Role:      user.Role,
+		ID:        user.ID,
+	}
 }
 
 func ToRegisterResponse(user *User, msg string) *AuthRegisterResponse {

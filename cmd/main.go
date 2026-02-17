@@ -18,6 +18,7 @@ import (
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -52,7 +53,15 @@ func main() {
 	cfg := config.NewConfig()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	db, err := gorm.Open(sqlite.Open("db.sqlite3"), &gorm.Config{})
+
+	var driver gorm.Dialector
+	if cfg.DatabaseType == "postgres" {
+		driver = postgres.Open(cfg.DatabaseDsn)
+	} else {
+		driver = sqlite.Open("db.sqlite3")
+	}
+
+	db, err := gorm.Open(driver, &gorm.Config{})
 	if err != nil {
 		panic("failed to connect databse")
 	}

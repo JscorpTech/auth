@@ -65,6 +65,13 @@ definitions:
       user:
         $ref: '#/definitions/auth.UserDTO'
     type: object
+  auth.GoogleAuthRequest:
+    properties:
+      id_token:
+        type: string
+    required:
+    - id_token
+    type: object
   auth.TokenDTO:
     properties:
       access:
@@ -74,6 +81,10 @@ definitions:
     type: object
   auth.UserDTO:
     properties:
+      balance:
+        type: integer
+      email:
+        type: string
       first_name:
         type: string
       id:
@@ -83,6 +94,10 @@ definitions:
       phone:
         type: string
       role:
+        type: string
+      template_balance:
+        type: integer
+      username:
         type: string
     type: object
   dto.BaseResponse:
@@ -134,6 +149,32 @@ paths:
                   $ref: '#/definitions/auth.TokenDTO'
               type: object
       summary: Confirm phone number
+      tags:
+      - auth
+  /api/auth/google:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Google auth request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.GoogleAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.AuthLoginResponse'
+              type: object
+      summary: Google authentication
       tags:
       - auth
   /api/auth/login:

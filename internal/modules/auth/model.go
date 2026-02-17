@@ -6,15 +6,26 @@ import (
 	"gorm.io/gorm"
 )
 
+type Role string
+
+var (
+	RoleUser  Role = "user"
+	RoleAdmin Role = "admin"
+	RoleSuper Role = "super"
+)
+
 type User struct {
 	gorm.Model
-	FirstName   string     `gorm:"first_name"`
-	LastName    string     `gorm:"last_name"`
-	Phone       *string    `gorm:"phone;default:null;uniqueIndex"`
-	Email       *string    `gorm:"email;default:null;uniqueIndex"`
-	Password    string     `gorm:"password"`
-	ValidatedAT *time.Time `gorm:"validated_at"`
-	Role        string     `gorm:"role;default:user"`
+	FirstName       string     `gorm:"first_name"`
+	LastName        string     `gorm:"last_name"`
+	Phone           *string    `gorm:"phone;default:null;uniqueIndex"`
+	Email           *string    `gorm:"email;default:null;uniqueIndex"`
+	UserName        *string    `gorm:"username;uniqueIndex;default:null"`
+	Balance         int        `gorm:"balance"`
+	TemplateBalance int        `gorm:"template_balance"`
+	Password        string     `gorm:"password"`
+	ValidatedAT     *time.Time `gorm:"validated_at"`
+	Role            Role       `gorm:"role;default:user"`
 }
 
 func (*User) TableName() string {
