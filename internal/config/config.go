@@ -1,6 +1,10 @@
 package config
 
-import "os"
+import (
+	"os"
+
+	"go.uber.org/zap"
+)
 
 type Config struct {
 	PrivateKey     []byte
@@ -13,14 +17,25 @@ type Config struct {
 	DatabaseType   string
 }
 
-func NewConfig() *Config {
-	privKey, err := os.ReadFile("keys/private.pem")
-	if err != nil {
-		panic("private.pem faylini o'qishda xatolik yuz berdi: " + err.Error())
+func NewConfig(logger *zap.Logger) *Config {
+	var privKey []byte
+	var pubKey []byte
+	var err error
+	if os.Getenv("PRIVATE_KEY") != "" {
+		privKey = []byte(os.Getenv("PRIVATE_KEY"))
+	} else {
+		privKey, err = os.ReadFile("keys/private.pem")
+		if err != nil {
+			logger.Info("private.pem faylini o'qishda xatolik yuz berdi: ", zap.Error(err))
+		}
 	}
-	pubKey, err := os.ReadFile("keys/public.pem")
-	if err != nil {
-		panic("public.pem faylini o'qishda xatolik yuz berdi: " + err.Error())
+	if os.Getenv("PUBLIC_KEY") != "" {
+		pubKey = []byte(os.Getenv("PUBLIC_KEY"))
+	} else {
+		pubKey, err = os.ReadFile("keys/public.pem")
+		if err != nil {
+			logger.Info("public.pem faylini o'qishda xatolik yuz berdi: ", zap.Error(err))
+		}
 	}
 
 	return &Config{

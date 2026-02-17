@@ -44,13 +44,13 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 
+	logger, _ := zap.NewDevelopment()
 	err := godotenv.Load()
 	if err != nil {
-		panic(".env load error")
+		logger.Info(".env load error")
 	}
 
-	logger, _ := zap.NewDevelopment()
-	cfg := config.NewConfig()
+	cfg := config.NewConfig(logger)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
