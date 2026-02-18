@@ -22,7 +22,7 @@ type User struct {
 	Email           *string    `gorm:"email;default:null;uniqueIndex"`
 	UserName        *string    `gorm:"username;uniqueIndex;default:null"`
 	Balance         int        `gorm:"balance"`
-	TemplateBalance int        `gorm:"template_balance"`
+	TemplateBalance string     `gorm:"template_balance"`
 	Password        string     `gorm:"password"`
 	ValidatedAT     *time.Time `gorm:"validated_at"`
 	Role            Role       `gorm:"role;default:user"`
